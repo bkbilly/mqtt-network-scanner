@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/3.1.1/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='myapp.js') }}"></script>
+    <link href="{{ url_for('static', filename='mycss.css') }}" rel="stylesheet">
+
+
+    <title>Network Scanner</title>
+  </head>
+
+
+  <body class="p-3 mb-2 bg-dark text-white">
+    <div>
+      <h1><span style="float:left;">Network Scanner</span></h1>
+      <span style="float:right;text-align:right"><button id="scanbutton" onclick="scanNetwork()" type="button" class="btn btn-info">Scan</button></span>
+    </div>
+
+    <table id="myTable" class="table table-hover table-dark table-striped table-bordered table-sm sortable">
+      <thead  class="thead-dark">
+        <tr>
+          <th>Type</th>
+          <th>IP</th>
+          <th>Details</th>
+          <th>Hostname</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody class="align-middle">
+        {% for device in devices %}
+          <tr style="color: {{ device['recognizedcolor'] }};">
+            <td class="text-center">
+              <span class="material-icons" style="color: {{ device['statecolor'] }};">
+                {{ device['icon'] }}
+              </span>
+            </td>
+            <td sorttable_customkey="{{ device['sortip'] }}">{{ device['ip'] }}</td>
+            <td>{{ device['device'] }}</td>
+            <td>{{ device['hostname'] }}</td>
+            <td>
+              <a onclick="editDevice(this);" href="#" 
+                data-name="{{ device['name'] }}"
+                data-mac="{{ device['mac'] }}"
+                data-ip="{{ device['ip'] }}"
+                data-vendor="{{ device['vendor'] }}"
+                data-brand="{{ device['brand'] }}"
+                data-model="{{ device['model'] }}"
+                data-notify_away="{{ device['notify_away'] }}"
+                data-is_recognized="{{ device['is_recognized'] }}"
+                data-icon="{{ device['icon'] }}"
+                data-devicetype="{{ device['devicetype'] }}"
+                data-created="{{ device['created'] }}"
+                data-hostname="{{ device['hostname'] }}"
+                >
+                <span class="material-icons">edit</span>
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+    <div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">
+              <span id="modal_vendor"></span><br>
+              (<span id="modal_mac"></span>)
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid">
+              <div class="row">
+                <span class="material-icons align-middle text-center" id="iconpreview">radar</span>
+              </div>
+              <div class="row">
+                <div class="col-md-4 ml-auto">Created: <span id="modal_created"></span></div>
+                <div class="col-md-4 ml-auto">Hostname: <span id="modal_hostname"></span></div>
+                <div class="col-md-4 ml-auto">IP: <span id="modal_ip"></span></div>
+              </div>
+            </div>
+            <form>
+              <hr>
+              <div class="row">
+                <div class="col-md-4 ml-auto">
+                  <label for="modal_icon" class="col-form-label">Icon:</label>
+                  <input type="text" class="form-control" id="modal_icon">
+                </div>
+                <div class="col-md-4 ml-auto">
+                  <label for="modal_brand" class="col-form-label">Brand:</label>
+                  <input type="text" class="form-control" id="modal_brand">
+                </div>
+                <div class="col-md-4 ml-auto">
+                  <label for="modal_model" class="col-form-label">Model:</label>
+                  <input type="text" class="form-control" id="modal_model">
+                </div>
+                <div class="col-md-4 ml-auto">
+                  <label for="modal_devicetype" class="col-form-label">Device Type:</label>
+                  <input type="text" class="form-control" id="modal_devicetype">
+                </div>
+                <div class="col-md-4 ml-auto">
+                  <label for="modal_name" class="col-form-label">Name:</label>
+                  <input type="text" class="form-control" id="modal_name">
+                </div>
+                <div class="col-md-4 ml-auto">
+                  <label for="modal_is_recognized" class="col-form-label">Is Recognized:</label>
+                  <label class="switch"><input type="checkbox" id="modal_is_recognized"><span class="slider round"></span></label>
+                </div>
+                <div class="col-md-4 ml-auto">
+                  <label for="modal_notify_away" class="col-form-label">Notify on Away:</label>
+                  <label class="switch"><input type="checkbox" id="modal_notify_away"><span class="slider round"></span></label>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="saveDeviceChanges()">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </body>
+</html>
+<!-- https://htmldom.dev/show-or-hide-table-columns/ -->
