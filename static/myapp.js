@@ -1,4 +1,12 @@
 var devicedata = {}
+var socket = io();
+
+socket.on('endscan', function() {
+    console.log('Please Reload Browser!!');
+	if ($('#myModal').is(':visible') == false){
+		location.reload();
+	}
+});
 
 function scanNetwork() {
 	$("#scanbutton").prop("disabled", true);
