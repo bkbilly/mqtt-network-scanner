@@ -49,7 +49,8 @@ class ArpScan:
 
 
 class NetworkScan():
-    def __init__(self):
+    def __init__(self, finishedscan_callback=lambda n: None):
+        self.finishedscan_callback = finishedscan_callback
         DATABASE = 'database.db'
         self.db = sqlite3.connect(DATABASE, check_same_thread=False)
         self.db.row_factory = sqlite3.Row
@@ -123,6 +124,7 @@ class NetworkScan():
             self.db.commit()
 
         print('endscan')
+        self.finishedscan_callback(hosts)
         return hosts
 
 
@@ -175,6 +177,10 @@ def index():
     return render_template('index.html', devices=devices)
 
 
+def endscan(data):
+    socketio.emit('endscan', data)
+
+
 def run_scan_forever():
     netscan.startscan()
     schedule.every(120).seconds.do(netscan.startscan)
@@ -190,6 +196,6 @@ def start_trheading():
 
 
 if __name__ == '__main__':
-    netscan = NetworkScan()
+    netscan = NetworkScan(endscan)
     start_trheading()
     socketio.run(app, host='0.0.0.0', debug=True)
