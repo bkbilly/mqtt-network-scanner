@@ -14,6 +14,8 @@ Helps to keep an eye for new devices through an interactive web interface.
 # Tech details
 Sends ARP requests to get the IP and MAC of each device through the `arp-scan` command and for each offline device, it checks if it is actually offline with ICMP (ping). There were more pythonic ways to run the arp scan like the `scapy`, but the results on Linux were not so accurate.
 
+Every ARP scan needs root permitions because it is using a promiscuous mode to monitor the network and create custom packages, so you need sudo to run this app.
+
 # Installation
 [TBD]
 
