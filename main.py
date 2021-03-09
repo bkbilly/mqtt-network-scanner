@@ -12,6 +12,7 @@ import sqlite3
 
 from icmplib import ping
 import netifaces
+import yaml
 
 
 class ArpScan:
@@ -49,8 +50,9 @@ class ArpScan:
 
 
 class NetworkScan():
-    def __init__(self, finishedscan_callback=lambda n: None):
+    def __init__(self, interface, finishedscan_callback=lambda n: None):
         self.finishedscan_callback = finishedscan_callback
+        self.interface = interface
         DATABASE = 'database.db'
         self.db = sqlite3.connect(DATABASE, check_same_thread=False)
         self.db.row_factory = sqlite3.Row
@@ -71,7 +73,7 @@ class NetworkScan():
 
     def startscan(self):
         print('startscan')
-        arp_scan = ArpScan("enp3s0")
+        arp_scan = ArpScan(self.interface)
 
         cur = self.db.cursor()
         hosts = {}
@@ -166,15 +168,24 @@ def index():
         dev_dict['sortip'] = ''.join(i.zfill(3) for i in ip.split('.'))
         dev_dict['statecolor'] = 'green' if dev_dict['active'] else 'red'
         dev_dict['recognizedcolor'] = 'white' if dev_dict['is_recognized'] else 'cyan'
-        dev_dict['device'] = dev_dict['vendor']
+        dev_dict['details'] = dev_dict['vendor']
         if dev_dict['name'] != "":
-            dev_dict['device'] = dev_dict['name']
+            dev_dict['details'] = dev_dict['name']
         elif dev_dict['brand'] != "":
-            dev_dict['device'] = dev_dict['brand']
+            dev_dict['details'] = dev_dict['brand']
             if dev_dict['model'] != "":
-                dev_dict['device'] += " " + dev_dict['model']
+                dev_dict['details'] += " " + dev_dict['model']
+        dev_dict['device'] = dev_dict['hostname']
+        if dev_dict['devicetype'] != "":
+            dev_dict['device'] = dev_dict['devicetype']
         devices.append(dev_dict)
     return render_template('index.html', devices=devices)
+
+
+def ReadConfig():
+    with open('config.yaml') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+    return config
 
 
 def endscan(data):
@@ -183,7 +194,7 @@ def endscan(data):
 
 def run_scan_forever():
     netscan.startscan()
-    schedule.every(120).seconds.do(netscan.startscan)
+    schedule.every(config['scaninterval']).seconds.do(netscan.startscan)
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -196,6 +207,8 @@ def start_trheading():
 
 
 if __name__ == '__main__':
-    netscan = NetworkScan(endscan)
-    start_trheading()
+    config = ReadConfig()
+    netscan = NetworkScan(config['network'], endscan)
+    if config['scaninterval'] > 0:
+        start_trheading()
     socketio.run(app, host='0.0.0.0', debug=True)

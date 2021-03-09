@@ -30,8 +30,8 @@
         <tr>
           <th>Type</th>
           <th>IP</th>
+          <th>Device</th>
           <th>Details</th>
-          <th>Hostname</th>
           <th>Edit</th>
         </tr>
       </thead>
@@ -44,8 +44,8 @@
               </span>
             </td>
             <td sorttable_customkey="{{ device['sortip'] }}">{{ device['ip'] }}</td>
+            <td>{{ device['details'] }}</td>
             <td>{{ device['device'] }}</td>
-            <td>{{ device['hostname'] }}</td>
             <td>
               <a onclick="editDevice(this);" href="#" 
                 data-name="{{ device['name'] }}"
