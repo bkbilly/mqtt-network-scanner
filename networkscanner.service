@@ -5,8 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/opt/network_scanner
-ExecStart=/opt/network_scanner/main.py
+WorkingDirectory=/opt/mqtt-network-scanner
+ExecStart=/opt/mqtt-network-scanner/main.py
 Restart=on-abort
 
 [Install]
