@@ -151,6 +151,14 @@ def update_device():
     netscan.updatequery(update_query)
     return "done"
 
+@app.route('/delete_device', methods=['POST', 'GET'])
+def delete_device():
+    delete_query = f"""DELETE FROM devices
+    	WHERE mac='{ request.form['mac'] }'
+    """
+    netscan.updatequery(delete_query)
+    return "done"
+
 
 @app.route('/scan')
 def scan_network():
