@@ -1,0 +1,8 @@
+schedule>=1.0.0
+Flask>=1.1.1
+Flask-MQTT>=1.1.1
+Flask-SocketIO>=5.0.1
+icmplib>=2.0.2
+netifaces>=0.10.4
+PyYAML>=5.4.1
+pysqlite3>=0.4.5

@@ -6,10 +6,11 @@ import threading
 import schedule
 import time
 
-from flask import Flask, request, render_template, g
+from flask import Flask, request, render_template
 from flask_socketio import SocketIO
-import sqlite3
+from flask_mqtt import Mqtt
 
+import sqlite3
 from icmplib import ping
 import netifaces
 import yaml
@@ -77,7 +78,7 @@ class NetworkScan():
 
         cur = self.db.cursor()
         hosts = {}
-        newMacs = []
+        newDevices = []
         changedtoOnline = []
         changedtoOffline = []
         for host in arp_scan.hosts:
@@ -87,7 +88,7 @@ class NetworkScan():
                 cur.execute(f"""INSERT INTO devices (mac, ip, vendor, hostname)
                  VALUES ('{host['mac']}', '{host['ip']}', '{host['vendor']}', '{host['hostname']}');""")
                 self.db.commit()
-                newMacs.append(host['mac'])
+                newDevices.append(host)
             else:
                 dev_dict = dict(zip(row.keys(), list(row)))
                 if not dev_dict['active']:
@@ -125,14 +126,50 @@ class NetworkScan():
                 f"UPDATE devices SET active=1 WHERE mac in ({update_macs_query});")
             self.db.commit()
 
-        print('endscan')
-        self.finishedscan_callback(hosts)
+        self.finishedscan_callback(hosts, changedtoOnline, changedtoOffline, newDevices)
         return hosts
 
 
+def ReadConfig():
+    with open('config.yaml') as f:
+        config = yaml.load(f, Loader=yaml.FullLoader)
+    return config
+
+
+def endscan(hosts, changedtoOnline, changedtoOffline, newDevices):
+    socketio.emit('endscan', hosts)
+    print('newDevices:', newDevices)
+    for newDevice in newDevices:
+        message = f"""New device found {newDevice['ip']} ({newDevice['hostname']}). Device specific: {newDevice['mac']} ({newDevice['vendor']})"""
+        mqtt.publish(config['mqtt']['topic'], message)
+
+
+def run_scan_forever():
+    netscan.startscan()
+    schedule.every(config['scaninterval']).seconds.do(netscan.startscan)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+
+def start_trheading():
+    thread = threading.Thread(target=run_scan_forever)
+    thread.daemon = True
+    thread.start()
+
+
+config = ReadConfig()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(42)
+app.config['MQTT_BROKER_URL'] = config['mqtt']['host']
+app.config['MQTT_BROKER_PORT'] = config['mqtt']['port']
+app.config['MQTT_USERNAME'] = config['mqtt']['user']
+app.config['MQTT_PASSWORD'] = config['mqtt']['pass']
+app.config['MQTT_REFRESH_TIME'] = 1.0  # refresh time in seconds
+mqtt = Mqtt(app)
+
 socketio = SocketIO(app)
+netscan = NetworkScan(config['network'], endscan)
 
 
 @app.route('/update_device', methods=['POST', 'GET'])
@@ -154,7 +191,7 @@ def update_device():
 @app.route('/delete_device', methods=['POST', 'GET'])
 def delete_device():
     delete_query = f"""DELETE FROM devices
-    	WHERE mac='{ request.form['mac'] }'
+        WHERE mac='{ request.form['mac'] }'
     """
     netscan.updatequery(delete_query)
     return "done"
@@ -190,33 +227,7 @@ def index():
     return render_template('index.html', devices=devices)
 
 
-def ReadConfig():
-    with open('config.yaml') as f:
-        config = yaml.load(f, Loader=yaml.FullLoader)
-    return config
-
-
-def endscan(data):
-    socketio.emit('endscan', data)
-
-
-def run_scan_forever():
-    netscan.startscan()
-    schedule.every(config['scaninterval']).seconds.do(netscan.startscan)
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
-
-def start_trheading():
-    thread = threading.Thread(target=run_scan_forever)
-    thread.daemon = True
-    thread.start()
-
-
 if __name__ == '__main__':
-    config = ReadConfig()
-    netscan = NetworkScan(config['network'], endscan)
     if config['scaninterval'] > 0:
         start_trheading()
     socketio.run(app, host='0.0.0.0', debug=True)
