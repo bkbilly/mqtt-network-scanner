@@ -1,0 +1,14 @@
+[Unit]
+Description=Scan for new devices
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/network_scanner
+ExecStart=/opt/network_scanner/main.py
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+
