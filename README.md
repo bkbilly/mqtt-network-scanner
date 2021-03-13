@@ -19,7 +19,7 @@ Every ARP scan needs root permitions because it is using a promiscuous mode to m
 # Installation
 The installation process is still on development, but the basic installation is as follows:
 ```bash
-git clone git@github.com:bkbilly/mqtt-network-scanner.git /opt/mqtt-network-scanner
+git clone https://github.com/bkbilly/mqtt-network-scanner.git /opt/mqtt-network-scanner
 cd /opt/mqtt-network-scanner
 vi config.yaml
 
