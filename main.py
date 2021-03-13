@@ -2,14 +2,14 @@ import subprocess
 import os
 import re
 import threading
-
-import schedule
 import time
+
 
 from flask import Flask, request, render_template
 from flask_socketio import SocketIO
 from flask_mqtt import Mqtt
 
+import schedule
 import sqlite3
 from icmplib import ping
 import netifaces
@@ -230,4 +230,4 @@ def index():
 if __name__ == '__main__':
     if config['scaninterval'] > 0:
         start_trheading()
-    socketio.run(app, host='0.0.0.0', debug=True)
+    socketio.run(app, host='0.0.0.0', port=config['appport'], debug=config['debug'])
