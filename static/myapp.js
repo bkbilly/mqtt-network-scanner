@@ -80,3 +80,10 @@ function saveDeviceChanges() {
 	$('#myModal').modal('hide');
 	return true;
 }
+
+function deleteDevice() {
+	$.post( "delete_device", devicedata, function( data ) {
+		console.log(data);
+		location.reload();
+	});
+}

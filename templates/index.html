@@ -95,7 +95,7 @@
               <hr>
               <div class="row">
                 <div class="col-md-4 ml-auto">
-                  <label for="modal_icon" class="col-form-label">Icon:</label>
+                  <label for="modal_icon" class="col-form-label">Icon from <a href="https://fonts.google.com/icons">here</a>:</label>
                   <input type="text" class="form-control" id="modal_icon">
                 </div>
                 <div class="col-md-4 ml-auto">
@@ -126,6 +126,7 @@
             </form>
           </div>
           <div class="modal-footer">
+            <button type="button" class="btn btn-danger" onclick="deleteDevice()">Delete</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary" onclick="saveDeviceChanges()">Save</button>
           </div>
