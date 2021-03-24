@@ -33,6 +33,7 @@ function editDevice(identifier) {
 	$("#modal_vendor").text(devicedata['vendor']);
 	$("#modal_hostname").text(devicedata['hostname']);
 	$("#modal_ip").text(devicedata['ip']);
+	$("#modal_last_changed").text(devicedata['last_changed_hm']);
 	$("#iconpreview").text(devicedata['icon']);
 	$("#modal_mac").text(devicedata['mac']);
 

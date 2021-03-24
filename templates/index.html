@@ -60,6 +60,7 @@
                 data-devicetype="{{ device['devicetype'] }}"
                 data-created="{{ device['created'] }}"
                 data-hostname="{{ device['hostname'] }}"
+                data-last_changed_hm="{{ device['last_changed_hm'] }}"
                 >
                 <span class="material-icons">edit</span>
               </a>
@@ -89,6 +90,7 @@
                 <div class="col-md-4 ml-auto">Created: <span id="modal_created"></span></div>
                 <div class="col-md-4 ml-auto">Hostname: <span id="modal_hostname"></span></div>
                 <div class="col-md-4 ml-auto">IP: <span id="modal_ip"></span></div>
+                <div class="col-md-4 ml-auto">Changed: <span id="modal_last_changed"></span></div>
               </div>
             </div>
             <form>
