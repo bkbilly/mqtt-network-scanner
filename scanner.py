@@ -120,7 +120,7 @@ class NetworkScan():
         results = cur.fetchall()
         for row in results:
             dev_dict = dict(zip(row.keys(), list(row)))
-            host = ping(row[0], count=4, interval=0.3)
+            host = ping(dev_dict['ip'], count=2, interval=0.3)
             if not host.is_alive and dev_dict['active'] == 1:
                 self.changedstate(dev_dict, 'offline')
                 changedtoOffline.append(dev_dict)
