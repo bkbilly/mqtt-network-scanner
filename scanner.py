@@ -2,7 +2,9 @@
 
 import subprocess
 import re
+import time
 
+from multiprocessing import Pool
 import sqlite3
 from icmplib import ping
 import netifaces
@@ -42,6 +44,14 @@ class ArpScan:
         if len(find_hostname) > 0:
             hostname = find_hostname[0]
         return hostname
+
+
+class PingScan():
+    """docstring for PingScan"""
+
+    def pingscan(self, dev_dict):
+        host = ping(dev_dict['ip'], count=2, interval=0.3)
+        return dev_dict, host
 
 
 class NetworkScan():
@@ -87,8 +97,11 @@ class NetworkScan():
 
     def startscan(self):
         print('startscan')
+        time_arp_start = time.time()
         arp_scan = ArpScan(self.interface)
+        time_arp = time_arp_start - time.time()
 
+        time_sql_start = time.time()
         cur = self.db.cursor()
         hosts = {}
         newDevices = []
@@ -115,15 +128,27 @@ class NetworkScan():
                 'vendor': host['vendor'],
                 'hostname': host['hostname']
             }
+
         macs_query = ', '.join(f'"{w}"' for w in hosts.keys())
         cur.execute(f"SELECT * FROM devices where mac not in ({macs_query});")
         results = cur.fetchall()
+        pings_check = []
         for row in results:
             dev_dict = dict(zip(row.keys(), list(row)))
-            host = ping(dev_dict['ip'], count=2, interval=0.3)
+            pings_check.append(dev_dict)
+        time_sql = time_sql_start - time.time()
+
+        print('start ping process:', pings_check)
+        time_ping_start = time.time()
+        with Pool(len(pings_check)) as p:
+            ping_result = p.map(PingScan().pingscan, pings_check)
+        for dev_dict, host in ping_result:
             if not host.is_alive and dev_dict['active'] == 1:
                 self.changedstate(dev_dict, 'offline')
                 changedtoOffline.append(dev_dict)
+        time_ping = time_ping_start - time.time()
+
+        print(f"Timings: arp = {time_arp}, sql = {time_sql}, ping = {time_ping}")
 
         self.endscan_callback(hosts, changedtoOnline, changedtoOffline, newDevices)
         return hosts
