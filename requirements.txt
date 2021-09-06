@@ -6,6 +6,5 @@ icmplib>=2.0.2
 netifaces>=0.10.4
 PyYAML>=5.4.1
 pysqlite3>=0.4.5
-icmplib
-timeago
-flask_mqtt
+timeago>=1.0.15
+Flask-MQTT>=1.1.1
