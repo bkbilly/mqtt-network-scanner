@@ -5,9 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
     <script src="https://www.kryogenix.org/code/browser/sorttable/sorttable.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdn.socket.io/3.1.1/socket.io.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
@@ -25,14 +27,22 @@
       <span style="float:right;text-align:right"><button id="scanbutton" onclick="scanNetwork()" type="button" class="btn btn-info">Scan</button></span>
     </div>
 
-    <table id="myTable" class="table table-hover table-dark table-striped table-bordered table-sm sortable">
-      <thead  class="thead-dark">
+    <table data-role="table" data-mode="columntoggle" id="myTable" class="table table-hover table-dark table-striped table-bordered table-sm sortable">
+      <thead class="thead-dark">
         <tr>
-          <th>Type</th>
-          <th>IP</th>
-          <th>Device</th>
-          <th>Details</th>
-          <th>Edit</th>
+          <th data-priority="0">Type</th>
+          <th data-priority="0">Edit</th>
+          <th data-priority="0">IP</th>
+          <th data-priority="0">Device</th>
+          <th data-priority="0">Details</th>
+          <!-- <th data-priority="6">Name</th> -->
+          <th data-priority="6">Vendor</th>
+          <th data-priority="6">Brand</th>
+          <th data-priority="6">Model</th>
+          <th data-priority="6">Device Type</th>
+          <th data-priority="6">Created</th>
+          <th data-priority="6">Hostname</th>
+          <th data-priority="6">Last Changed</th>
         </tr>
       </thead>
       <tbody class="align-middle">
@@ -43,9 +53,6 @@
                 {{ device['icon'] }}
               </span>
             </td>
-            <td sorttable_customkey="{{ device['sortip'] }}">{{ device['ip'] }}</td>
-            <td>{{ device['details'] }}</td>
-            <td>{{ device['device'] }}</td>
             <td>
               <a onclick="editDevice(this);" href="#" 
                 data-name="{{ device['name'] }}"
@@ -65,6 +72,17 @@
                 <span class="material-icons">edit</span>
               </a>
             </td>
+            <td sorttable_customkey="{{ device['sortip'] }}">{{ device['ip'] }}</td>
+            <td>{{ device['details'] }}</td>
+            <td>{{ device['device'] }}</td>
+            <!-- <td>{{ device['name'] }}</td> -->
+            <td>{{ device['vendor'] }}</td>
+            <td>{{ device['brand'] }}</td>
+            <td>{{ device['model'] }}</td>
+            <td>{{ device['devicetype'] }}</td>
+            <td>{{ device['created'] }}</td>
+            <td>{{ device['hostname'] }}</td>
+            <td sorttable_customkey="{{ device['last_changed'] }}">{{ device['last_changed_hm'] }}</td>
           </tr>
         {% endfor %}
       </tbody>

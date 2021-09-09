@@ -1,3 +1,10 @@
+.ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a, .ui-panel-wrapper {
+  all: unset;
+}
+
+.ui-page-theme-a, .ui-group-theme-a {
+  all: unset;
+}
 #iconpreview {
     font-size: 65px;
 }
