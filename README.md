@@ -23,6 +23,8 @@ git clone https://github.com/bkbilly/mqtt-network-scanner.git /opt/mqtt-network-
 cd /opt/mqtt-network-scanner
 vi config.yaml
 
+sudo apt install arp-scan
+
 sudo pip install -r requirements.txt
 sudo cp networkscanner.service /etc/systemd/system/networkscanner.service
 sudo systemctl enable networkscanner.service
