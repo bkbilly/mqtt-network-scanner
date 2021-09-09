@@ -1,0 +1,10 @@
+scaninterval: 120
+network: "enp42s0"
+appport: 5003
+debug: true
+mqtt:
+  topic: "scanner/status"
+  host: "192.168.2.1"
+  user: "user"
+  pass: "password"
+  port: 1883
