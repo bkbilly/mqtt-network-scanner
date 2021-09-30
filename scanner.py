@@ -6,7 +6,7 @@ import time
 
 from multiprocessing import Pool
 import sqlite3
-from icmplib import ping
+from icmplib import multiping
 import netifaces
 
 
@@ -44,14 +44,6 @@ class ArpScan:
         if len(find_hostname) > 0:
             hostname = find_hostname[0]
         return hostname
-
-
-class PingScan():
-    """docstring for PingScan"""
-
-    def pingscan(self, dev_dict):
-        host = ping(dev_dict['ip'], count=2, interval=0.3)
-        return dev_dict, host
 
 
 class NetworkScan():
@@ -98,6 +90,8 @@ class NetworkScan():
     def startscan(self):
         print('startscan')
         time_arp_start = time.time()
+
+        # Check devices with arp scan
         arp_scan = ArpScan(self.interface)
         time_arp = time_arp_start - time.time()
 
@@ -107,7 +101,10 @@ class NetworkScan():
         newDevices = []
         changedtoOnline = []
         changedtoOffline = []
+
+        # Check for newly changed devices
         for host in arp_scan.hosts:
+            print(host)
             cur.execute(f"SELECT * FROM devices where mac='{host['mac']}';")
             row = cur.fetchone()
             if row is None:
@@ -129,23 +126,27 @@ class NetworkScan():
                 'hostname': host['hostname']
             }
 
+        # Check offline devices with ping scan
         macs_query = ', '.join(f'"{w}"' for w in hosts.keys())
         cur.execute(f"SELECT * FROM devices where mac not in ({macs_query});")
         results = cur.fetchall()
         pings_check = []
+        devices = []
         for row in results:
             dev_dict = dict(zip(row.keys(), list(row)))
-            pings_check.append(dev_dict)
+            pings_check.append(dev_dict['ip'])
+            devices.append(dev_dict)
         time_sql = time_sql_start - time.time()
 
-        print('start ping process:', pings_check)
+        print('start ping process')
         time_ping_start = time.time()
-        with Pool(len(pings_check)) as p:
-            ping_result = p.map(PingScan().pingscan, pings_check)
-        for dev_dict, host in ping_result:
-            if not host.is_alive and dev_dict['active'] == 1:
-                self.changedstate(dev_dict, 'offline')
-                changedtoOffline.append(dev_dict)
+        ping_result = multiping(pings_check, count=2, interval=0.5, timeout=2)
+
+        for num, host in enumerate(ping_result):
+            # print(host, dev_dict)
+            if not host.is_alive and devices[num]['active'] == 1:
+                self.changedstate(devices[num], 'offline')
+                changedtoOffline.append(devices[num])
         time_ping = time_ping_start - time.time()
 
         print(f"Timings: arp = {time_arp}, sql = {time_sql}, ping = {time_ping}")
