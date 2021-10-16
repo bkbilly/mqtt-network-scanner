@@ -17,7 +17,7 @@ function scanNetwork() {
 }
 
 $( document ).ready(function() {
-	var myTH = document.getElementsByTagName("th")[1];
+	var myTH = document.getElementsByTagName("th")[2];
 	sorttable.innerSortFunction.apply(myTH, []);
 	$("#modal_icon").keyup(function(){
 		var newval = $("#modal_icon").val();

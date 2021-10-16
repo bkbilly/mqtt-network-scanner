@@ -72,3 +72,23 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+#myTable-button {
+  display: inline-block;
+  font-weight: 400;
+  line-height: 1.5;
+  /* text-align: center; */
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  border-radius: .25rem;
+  color: #000;
+  background-color: #3dd5f3;
+  border-color: #25cff2;
+}
