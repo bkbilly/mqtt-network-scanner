@@ -70,7 +70,7 @@ def update_device():
             model='{ request.form['model'] }',
             name='{ request.form['name'] }',
             is_recognized={ request.form['is_recognized'] },
-            notify_away={ request.form['notify_away'] }
+            notify_away=False
         WHERE
             mac='{ request.form['mac'] }'
     """
