@@ -1,3 +1,7 @@
+.table-striped>tbody>tr:nth-of-type(odd)>* {
+  color: unset;
+}
+
 .ui-overlay-a, .ui-page-theme-a, .ui-page-theme-a, .ui-panel-wrapper {
   all: unset;
 }
